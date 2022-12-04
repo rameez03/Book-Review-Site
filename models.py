@@ -30,7 +30,7 @@ db =SQLAlchemy()
 class LibraryModel(db.Model):
     __tablename__ = "book_data"
  
-    id=db.Column(db.Integer(),primary_key=True)
+    bookid=db.Column(db.Integer(),primary_key=True)
     title= db.Column(db.String())
     authors= db.Column(db.String())
     subjects= db.Column(db.String())

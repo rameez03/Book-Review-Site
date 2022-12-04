@@ -1,11 +1,75 @@
 from flask import Flask, render_template, request, redirect, url_for
-from models import db, AuthorModel, LibraryModel
+from models import db, LibraryModel
+
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import CountVectorizer
+# from pandas.tests.extension.test_external_block import df
  
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///book_data.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
+
+def recommendation(title):
+    #store data
+    df=pd.read_csv("./static/book_data.csv")
+    features = []
+    for i in range(0,df.shape[0]):
+        features.append(df['title'] + ' '+df['authors']+' '+df['publisher'][i])
+    df['combined_features']=features
+    z=df['combined_features'].apply(str).tolist()
+    coun_vect = CountVectorizer(lowercase=False)
+    cm=coun_vect.fit_transform(z)
+    #get the cosine similarity matrix from the count matrix 
+    cs=cosine_similarity(cm)
+    Title=title
+    number=4
+
+    #Find the book id of the book that user likes
+    book_id=0
+    for i in range(len(df)):
+        if(df['title'][i]==title):
+            book_id=df['bookid'][i]
+
+    scores=list(enumerate(cs[book_id]))
+    scores.remove(scores[book_id-1])
+    #sort the list of similar books 
+    sorted_scores=sorted(scores,key=lambda x:x[1],reverse=True)
+    j=0
+    print('The 5 most recommended books to '+Title+' are:\n')
+    book_title=''
+    book_id=-1
+    recommended_books = []
+    print('The 5 most recommended books to '+Title+' are:\n')
+    for item in sorted_scores:
+        for i in range(len(df)):
+            if(df['bookid'][i]==item[0]):
+                book_title=df['title'][i]
+                book_id=df['bookid'][i]
+        if Title == book_title:
+            number=number+1
+            continue
+        if(book_title=='' or book_id==-1):
+            continue
+        recommended_books.append([book_id , book_title])
+        j=j+1
+        if(j>=number):
+            break
+    
+    # for item in sorted_scores:
+    #     book_id = df.loc[(df['bookid'] == item[0]), 'bookid'].values[0]
+    #     book_title = df.loc[(df['bookid'] == item[0]), 'title'].values[0]
+    #     # trips.loc[(trips['route_id'] == routeid), 'trip_id'].values[0]
+    #     if Title == book_title:
+    #         number=number+1
+    #         continue
+    #     recommended_books.append([book_id , book_title])
+    #     j=j+1
+    #     if(j>=number):
+    #         break
+    return recommended_books
 
 @app.before_first_request
 def create_table():
@@ -79,13 +143,16 @@ def books():
 #     return render_template('authlist.html',authors= authors)
 
 
-@app.route('/data/<int:id>')
-def RetrieveBooks(id):
-    book=LibraryModel.query.filter(id == id).first()
-    print(id)
+@app.route('/data/<title>')
+def RetrieveBooks(title):
+    recommended_books = recommendation(title)
+    print(recommended_books)
+
+    book=LibraryModel.query.filter_by(title=title).first()
+    
     print(book)
     if book:
-        return render_template('data.html', book=book)
+        return render_template('data.html', book=book, recommended_books=recommended_books)
     return f"Book with id={id} Does not exist"
 
 # @app.route('/data/auth/<int:Author_id>')

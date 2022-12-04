@@ -8,7 +8,9 @@
   	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
 <body>
+
 	<div class="container mt-5" style="text-align: center;">
+	<img class="card-img-top" src="/static/logo.png" alt="Bookipedia" style="height: 222px; width: 300px;">
 	<div class="row">
 
 		{% for book in books.items %}
@@ -17,13 +19,12 @@
 				<!-- /opac-tmpl/lib/famfamfam/silk/book.png -->
 			  <img class="card-img-top" loading="lazy" style="height: 14rem;" src="{{book.image_url}}" alt="/static/book.png">
 			  <div class="card-body">
-			  	<h6 class="card-title"><a href='/data/{{book.id}}'>{{book.title}}</a></h5>
-			    <p style="font-size: small;">Authors: {{book.authors}}</p>
+			  	<h6 class="card-title"><a href='/data/{{book.title}}'>{{book.title}}</a></h5>
+			    <p style="font-size: small; font-weight: bold">{{book.authors}}</p>
 			    <!-- <p style="font-size: small;">Subjects: {{book.subjects}}</p> -->
 			  </div>
 			</div>
 		</div>
-
 		{% endfor %}
 
 	  </div>

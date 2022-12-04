@@ -9,15 +9,40 @@
 </head>
 
 <body>
-
 	<div class="container my-5">
-		<img src="{{book.image_url}}">
-		<h4>{{book.title}}</h4>
-		<p>By: {{book.authors}}</p>
-		<p>Subjects: {{book.subjects}}</p>
-		<p>ISBN: {{book.isbn}}</p>
-		<p>Publisher: {{book.publisher}}</p>
-	   <p>Ratings: {{book.ratings}} ({{book.rating_count}}  users)</p>
+		<div class="row">
+			<div class="col-12 col-lg-8 col-md-7 col-sm-12">
+				<img src="{{book.image_url}}">
+				<h4>{{book.title}}</h4>
+				<p>By: {{book.authors}}</p>
+				<p>Subjects: {{book.subjects}}</p>
+				<p>ISBN: {{book.isbn}}</p>
+				<p>Publisher: {{book.publisher}}</p>
+			   <p>Ratings: {{book.ratings}} ({{book.rating_count}}  users)</p>
+
+			   <form class="form">
+				  <div class="form-group mx-sm-3 mb-2">
+				    <label for="review" class="sr-only">Your review here ...</label>
+				    <!-- <input type="input-group-text" class="form-control" id="review" placeholder="Your review here ..."> -->
+				    <textarea class="form-control my-1" id="review" aria-label="Your review here ..."></textarea>
+				    <button type="submit" class="btn btn-primary mb-2">Add review</button>
+				  </div>
+				</form>
+
+				<p class="font-weight-bold">Reviews:</p>
+				<div class="container">
+					<p>username: Review ...</p>
+					<p>username: Review ...</p>
+					<p>username: Review ...</p>
+				</div>
+			</div>
+			<div class="col-12 col-lg-4 col-md-5 col-sm-12">
+				<h3>Similar Books:</h3><hr>
+				{% for book in recommended_books %}
+					<p><a href='/data/{{book[1]}}'>{{book[1]}}<a></p>
+				{% endfor %}
+			</div>
+		</div>
 	</div>
 	
 </body>
