@@ -67,3 +67,17 @@ class Ratings(UserMixin, db.Model):
  
     def __repr__(self):
         return f"{self.rating}"
+
+class Likes(UserMixin, db.Model):
+    __tablename__ = "likes"
+ 
+    likeid=db.Column(db.Integer(),primary_key=True)
+    bookid=db.Column(db.Integer())
+    username= db.Column(db.String())
+
+    def __init__(self, bookid, username):
+        self.bookid = bookid
+        self.username = username
+ 
+    def __repr__(self):
+        return f"{self.username}: {self.bookid}"

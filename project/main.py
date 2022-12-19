@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 
 from . import db
-from .models import LibraryModel, Comments, Ratings
+from .models import LibraryModel, Comments, Ratings, Likes
 
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
@@ -57,13 +57,17 @@ def recommendation(bookid):
 
     features = []
     for i in range(0,df.shape[0]):
-        features.append(df['title'][i] + ' '+df['authors'][i]+' '+df['publisher'][i])
+        features.append(df['authors'][i]+' '+df['publisher'][i])
+
     df['combined_features']=features
     z=df['combined_features'].apply(str).tolist()
+    z2=df['title'].apply(str).tolist()
     coun_vect = CountVectorizer(lowercase=False)
     cm=coun_vect.fit_transform(z)
+    cm2=coun_vect.fit_transform(z2)
     #get the cosine similarity matrix from the count matrix 
     cs=cosine_similarity(cm)
+    cs2=cosine_similarity(cm2)
 
     number=4
     #Find the book id of the book that user likes
@@ -81,9 +85,11 @@ def recommendation(bookid):
         score_rate.append(num_sim(int(n1),int(col[i])))
 
     scores=list(enumerate(cs[bookid]))
+    scores_title=list(enumerate(cs2[bookid]))
     score_rate=list(enumerate(score_rate))
 
     scores.remove(scores[bookid-1])
+    scores_title.remove(scores_title[bookid-1])
     score_rate.remove(score_rate[bookid-1])
 
     #sort the list of similar books 
@@ -91,7 +97,7 @@ def recommendation(bookid):
 
     for i in range(len(scores)):
         score2.append(list(scores[i]))
-        score2[i][1]=score2[i][1]*score_rate[i][1]
+        score2[i][1]=score2[i][1]*score_rate[i][1]*scores_title[i][1]
     sorted_scores=sorted(score2,key=lambda x:x[1],reverse=True)
     
     j=0
@@ -108,26 +114,32 @@ def recommendation(bookid):
             continue
         if(book_title=='' or book_id==-1):
             continue
-        recommended_books.append([book_id , book_title])
-        j=j+1
+        
+        if ([book_id,book_title] not in recommended_books):
+            recommended_books.append([book_id , book_title])
+            j=j+1
+
         if(j>=number):
             break
     return recommended_books
 
 @main.route('/')
 def index():
-    # return render_template('index.html')
     return redirect(url_for('auth.login'))
 
 @main.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html', name=current_user.name)
+    return render_template('profile.html', name=current_user.name, email=current_user.email)
 
 @main.route('/home')
 @login_required
 def home():
     return render_template('landing.html')    
+
+@main.route('/aboutus')
+def about():
+    return render_template('aboutus.html')
 
 @main.route('/books')
 @login_required
@@ -144,10 +156,12 @@ def retrievebooks(bookid):
 
     book = LibraryModel.query.filter_by(bookid=bookid).first()
     comments = Comments.query.filter_by(bookid=bookid).all()
+    like = Likes.query.filter_by(username=current_user.name, bookid=bookid).first()
     
+    liked = True if like else False
+
     if book:
-        return render_template('viewbook.html', book=book, recommended_books=recommended_books, comments=comments)
-        # return ('book page')
+        return render_template('viewbook.html', book=book, recommended_books=recommended_books, comments=comments, username=current_user.name, liked=liked)
     return f"Book with id={id} does not exist"
 
 @main.route("/addrating/<book_id>", methods=['POST'])
@@ -174,7 +188,8 @@ def addraring(book_id):
             book.update(dict(ratings=new_rating))
             current_rating.update(dict(rating=inputrating))
             db.session.commit()
-    
+
+    flash('Rated.', category='success')
     return redirect(url_for('main.retrievebooks', bookid=book_id))
 
 
@@ -182,8 +197,6 @@ def addraring(book_id):
 @login_required
 def addcomment(book_id):
     text = request.form.get('review')
-    print(text)
-    print(book_id)
 
     if not text:
         flash('Review cannot be empty.', category='error')
@@ -192,13 +205,36 @@ def addcomment(book_id):
         db.session.add(comment)
         db.session.commit()
         flash('Review added.', category='success')
-    #     post = Post.query.filter_by(id=post_id)
-    #     if post:
-    #         comment = Comment(
-    #             text=text, author=current_user.id, post_id=post_id)
-    #         db.session.add(comment)
-    #         db.session.commit()
-    #     else:
-    #         flash('Post does not exist.', category='error')
+    return redirect(url_for('main.retrievebooks', bookid=book_id))
+
+@main.route("/deletecomment/<book_id>/<comment_id>")
+@login_required
+def deletecomment(book_id, comment_id):
+
+    comment = Comments.query.filter_by(commentid=comment_id).first()
+
+    if not comment:
+        flash('Comment does not exist.', category='error')
+    elif current_user.name != comment.username:
+        flash('You do not have permission to delete this comment.', category='error')
+    else:
+        db.session.delete(comment)
+        db.session.commit()
+        flash('Comment deleted successfully.', category='success')
+
+    return redirect(url_for('main.retrievebooks', bookid=book_id))
+
+@main.route("/likebook/<book_id>")
+@login_required
+def like(book_id):
+    like = Likes.query.filter_by(username=current_user.name, bookid=book_id).first()
+
+    if like:
+        db.session.delete(like)
+        db.session.commit()
+    else:
+        like = Likes(username=current_user.name, bookid=book_id)
+        db.session.add(like)
+        db.session.commit()
 
     return redirect(url_for('main.retrievebooks', bookid=book_id))

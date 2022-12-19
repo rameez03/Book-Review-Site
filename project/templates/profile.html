@@ -1,7 +1,8 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
 {% block content %}
-<h1 class="title">
-  Welcome, {{ name }}!
-</h1>
+<div class="container border px-3 py-3 mt-5" style="width: 25rem;">
+    Name: <strong>{{ name }}</strong><br>
+    Email: <strong>{{ email }}</strong>
+</div>
 {% endblock %}

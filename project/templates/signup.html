@@ -1,37 +1,37 @@
-{% extends "base.html" %}
+{% extends "base2.html" %}
 
 {% block content %}
-<div class="column is-4 is-offset-4">
-    <h3 class="title">Sign Up</h3>
-    <div class="box">
-    	{% with messages = get_flashed_messages() %}
-		{% if messages %}
-		    <div class="notification is-danger">
-			{{ messages[0] }}. Go to <a href="{{ url_for('auth.login') }}">login page</a>.
-		    </div>
-		{% endif %}
-	{% endwith %}
-        <form method="POST" action="/signup">
-            <div class="field">
-                <div class="control">
-                    <input class="input is-large" type="email" name="email" placeholder="Email" autofocus="">
-                </div>
-            </div>
 
-            <div class="field">
-                <div class="control">
-                    <input class="input is-large" type="text" name="name" placeholder="Name" autofocus="">
-                </div>
-            </div>
+  <div class="container border px-3 py-3 mt-5" style="width: 25rem;">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          {{ messages[0] }}. Go to <a href="{{ url_for('auth.login') }}">login page</a>.
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        {% endif %}
+    {% endwith %}
+    <form action="/signup" method="POST">
+      <div class="form-group">
+        <label for="firstname">Name</label>
+        <input type="form-text" class="form-control" id="firstname" placeholder="Enter name" name="name">
+      </div>
+      <div class="form-group">
+        <label for="exampleInputEmail1">Email address</label>
+        <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" name="email">
+        <!-- <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small> -->
+      </div>
+      <div class="form-group">
+        <label for="exampleInputPassword1">Password</label>
+        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password" name="password">
+      </div>
+      <div class="text-center">
+        <div class="mb-2"><button type="submit" class="btn btn-primary">Signup</button></div>
+        <a href="/login" class="card-link">Already Registered? Login here!</a>
+      </div>
+    </form>
+  </div>
 
-            <div class="field">
-                <div class="control">
-                    <input class="input is-large" type="password" name="password" placeholder="Password">
-                </div>
-            </div>
-
-            <button class="button is-block is-info is-large is-fullwidth">Sign Up</button>
-        </form>
-    </div>
-</div>
 {% endblock %}

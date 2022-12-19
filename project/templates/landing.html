@@ -2,7 +2,20 @@
 
 {% block content %}
 
+
+
 <div class="container my-5" style="text-align: center;">
+	{% with messages = get_flashed_messages() %}
+		{% if messages %}
+			<div class="alert alert-success alert-dismissible fade show" role="alert">
+			  {{ messages[0] }}
+			  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			    <span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+		{% endif %}
+	{% endwith %}
+	
 	<div class="jumbotron">
 	  <img class="card-img-top" src="/static/logo.png" alt="Bookipedia" style="max-height: 208px; max-width: 280px;">
 	  <h1 class="display-4">Welcome to Bookipedia</h1>
