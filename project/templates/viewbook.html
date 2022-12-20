@@ -65,6 +65,9 @@
 	        <a href="{{ url_for('main.profile') }}" class="nav-link">Profile</a>
 	      </li>
 	      {% endif %}
+	      <li>
+	      	<a href="{{ url_for('main.about') }}" class="nav-link">About Us</a>
+	      </li>
 	      {% if not current_user.is_authenticated %}
 	      <li class="nav-item">
 	        <a href="{{ url_for('auth.login') }}" class="nav-link">Login</a>
