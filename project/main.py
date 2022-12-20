@@ -174,7 +174,7 @@ def addraring(book_id):
         old_rating = float(book.first().ratings)
         old_count = int(book.first().rating_count)
         new_count = old_count + 1
-        new_rating = round((((old_rating * old_count) + inputrating) / new_count), 2)
+        new_rating = ((old_rating * old_count) + inputrating) / new_count
         book.update(dict(ratings=new_rating, rating_count=new_count))
         rating = Ratings(bookid=book_id, username=current_user.name, rating=inputrating)
         db.session.add(rating)
@@ -184,7 +184,7 @@ def addraring(book_id):
         if inputrating != user_oldrating:
             old_rating = float(book.first().ratings)
             old_count = int(book.first().rating_count)
-            new_rating = round((old_rating + ((inputrating - user_oldrating) / old_count)), 2)
+            new_rating = old_rating + ((inputrating - user_oldrating) / old_count)
             book.update(dict(ratings=new_rating))
             current_rating.update(dict(rating=inputrating))
             db.session.commit()
