@@ -115,7 +115,7 @@
 				<p>Subjects: {{book.subjects}}</p>
 				<p>ISBN: {{book.isbn}}</p>
 				<p>Publisher: {{book.publisher}}</p>
-			   <p>Ratings: {{book.ratings}} ({{book.rating_count}}  users)</p>
+			   <p>Ratings: {{'%0.2f'| format(book.ratings)}} ({{book.rating_count}}  users)</p>
 
 				<!-- {% if not liked %}
 				<a class="btn btn-outline-primary" href="/likebook/{{book.bookid}}" role="button" style="float: left;"><span class="bi bi-hand-thumbs-up"></span></a>
